@@ -1,4 +1,5 @@
 const PORT = 3001
+const { response } = require('express');
 const express = require('express')
 
 const app = express();
@@ -81,8 +82,8 @@ app.delete('/api/persons/:id', (req, res) => {
 app.post('/api/persons/', (req, res) => {
   // create random id for new entry
   const randomID = Math.floor(Math.random() * 999999999999)
-  console.log(req)
-
+  console.log(req.body)
+  res.json('hello')
 })
 
 
