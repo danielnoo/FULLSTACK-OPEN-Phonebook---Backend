@@ -3,7 +3,7 @@ const express = require('express')
 
 const app = express();
 
-const people = [
+let people = [
   {
     id: 1,
     name: "Arto Hellas",
@@ -55,9 +55,8 @@ app.get('/info', (req, res) => {
 app.get('/api/persons/:id', (req, res) => {
   const id = Number(req.params.id)
   
-  const response = people.filter(person => person.id === id)
-  console.log(response);
-  
+  const response = people.find(person => person.id === id)
+    
   if(response) {
     res.json(response);
   } else {
@@ -66,12 +65,17 @@ app.get('/api/persons/:id', (req, res) => {
   
 })
 
+// delete an item (at this point only from local memory)
+
+app.delete('/api/persons/:id', (req, res) => {
+  const id = Number(req.params.id)
+  people = people.filter(person => person.id !== id)
+
+  res.status(204).end()
+})
 
 
-
-
-
-// app.get()
+// listen on PORT
 
 app.listen(PORT, () => {
   console.log(`server listening on port ${PORT}`);
@@ -109,5 +113,5 @@ const bakedGoodOrders = [
 
 const cupcakes = bakedGoodOrders.reduce((acc, cur) => {
   return acc + cur.cupcakes;
-});
-console.log(JSON.stringify(cupcakes));
+}, 0);
+console.log(cupcakes);
