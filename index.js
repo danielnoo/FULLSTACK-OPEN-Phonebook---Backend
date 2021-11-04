@@ -3,6 +3,8 @@ const express = require('express')
 
 const app = express();
 
+app.use(express.json());
+
 let people = [
   {
     id: 1,
@@ -74,6 +76,16 @@ app.delete('/api/persons/:id', (req, res) => {
   res.status(204).end()
 })
 
+// POST an item and assign it a random id
+
+app.post('/api/persons/', (req, res) => {
+  // create random id for new entry
+  const randomID = Math.floor(Math.random() * 999999999999)
+  console.log(req)
+
+})
+
+
 
 // listen on PORT
 
@@ -82,36 +94,3 @@ app.listen(PORT, () => {
 })
 
 
-const bakedGoodOrders = [
-  {
-    cupcakes: 10,
-    cakes: 0,
-    tarts: 0,
-  },
-  {
-    cupcakes: 0,
-    cakes: 1,
-    tarts: 12,
-  },
-  {
-    cupcakes: 6,
-    cakes: 0,
-    tarts: 12,
-  },
-  {
-    cupcakes: 2,
-    cakes: 1,
-    tarts: 0,
-  },
-];
-
-// const addCupcakesTwo =
-//   ((initial, iterating) => {
-//     return initial.cupcakes + iterating.cupcakes;
-//   },
-//   {});
-
-const cupcakes = bakedGoodOrders.reduce((acc, cur) => {
-  return acc + cur.cupcakes;
-}, 0);
-console.log(cupcakes);
