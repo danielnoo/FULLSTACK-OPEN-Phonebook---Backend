@@ -1,7 +1,9 @@
 const PORT = 3001
 const express = require('express')
 const morgan = require('morgan')
-const app = express();
+const cors = require('cors')
+const app = express()
+
 
 
 const requestLogger = (req, res, next) => {
@@ -17,6 +19,7 @@ morgan.token("body", function (req, res) {
 });
 
 app.use(express.json())
+app.use(cors())
 app.use(requestLogger)
 app.use(
   morgan(function (tokens, req, res) {
@@ -39,21 +42,25 @@ let people = [
     id: 1,
     name: "Arto Hellas",
     number: "040-123456",
+    important: true,
   },
   {
     id: 2,
     name: "Ada Lovelace",
     number: "39-44-5323523",
+    important: true,
   },
   {
     id: 3,
     name: "Dan Abramov",
     number: "12-43-234345",
+    important: true,
   },
   {
     id: 4,
     name: "Mary Poppendieck",
     number: "39-23-6423122",
+    important: true,
   },
 ];
 
@@ -131,7 +138,21 @@ app.post('/api/persons/', (req, res) => {
   res.json(newEntry)
 
 })
-  
+
+
+/// PUT replace object in persons with updated
+
+app.put('/api/persons/:id', (req, res) => {
+  const newEntry = req.body
+  people = people.map(person => person.id !== newEntry.id ? person : newEntry)
+
+  res.json(newEntry)
+
+})
+
+
+
+/// handling for unknown endpoint
 
 const unknownEndpoint = (req, res) => {
   res.status(404).send({ error: "unknown endpoint" });
