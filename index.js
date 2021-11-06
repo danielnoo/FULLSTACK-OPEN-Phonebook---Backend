@@ -1,4 +1,4 @@
-const PORT = 3001
+
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
@@ -162,6 +162,8 @@ app.use(unknownEndpoint);
 
 
 // listen on PORT
+
+const PORT = process.env.PORT || 3001
 
 app.listen(PORT, () => {
   console.log(`server listening on port ${PORT}`);
