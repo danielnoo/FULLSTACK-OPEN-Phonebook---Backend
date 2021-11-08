@@ -77,7 +77,7 @@ app.get("/info", async (req, res, next) => {
   try {
   const numEntries = await Entry.estimatedDocumentCount()
   const currentTime = new Date();
-  const response = `<p>Phonebook has info for ${umEntries} people 
+  const response = `<p>Phonebook has info for ${numEntries} people 
   
   </br>
   </br> ${currentTime}</p>`;
