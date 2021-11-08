@@ -73,9 +73,11 @@ app.get("/api/persons", (req, res) => {
 
 // GET phonebook info
 
-app.get("/info", (req, res) => {
+app.get("/info", async (req, res) => {
+  
+  const numEntries = await Entry.estimatedDocumentCount()
   const currentTime = new Date();
-  const response = `<p>Phonebook has info for ${people.length} people 
+  const response = `<p>Phonebook has info for ${numEntries} people 
   
   </br>
   </br> ${currentTime}</p>`;
