@@ -7,7 +7,8 @@ POST http://localhost:3001/api/persons/ HTTP/1.1 content-type: application/json
 {
 
 "name": "poop",
-"number": "39-23-6423122"
+"number": "39-23-6423122",
+"important": true
 }
 
 ###

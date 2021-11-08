@@ -3,21 +3,16 @@ const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const app = express();
+const Entry = require("./models/entries");
 
-const requestLogger = (req, res, next) => {
-  console.log("Method:", req.method);
-  console.log("Path:  ", req.path);
-  console.log("Body:  ", req.body);
-  console.log("---");
-  next();
-};
+
+
 
 morgan.token("body", function (req, res) {
   return JSON.stringify(req.body);
 });
 
 app.use(express.json());
-app.use(requestLogger);
 app.use(express.static("build"));
 app.use(cors());
 app.use(
@@ -34,6 +29,8 @@ app.use(
     ].join(" ");
   })
 );
+
+
 
 let people = [
   {
@@ -70,7 +67,7 @@ app.get("/", (req, res) => {
 // GET base API route
 
 app.get("/api/persons", (req, res) => {
-  res.json(people);
+  Entry.find({}).then(entries => res.json(entries));
 });
 
 // GET phonebook info
@@ -87,15 +84,20 @@ app.get("/info", (req, res) => {
 // GET specific entry
 
 app.get("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-
-  const response = people.find((person) => person.id === id);
-
-  if (response) {
-    res.json(response);
-  } else {
-    res.status(404).end();
-  }
+  Entry.findById(req.params.id)
+  .then(entry => {
+    if(entry){
+      res.json(entry)
+    } else {
+      res.status(404).end()
+    }
+  })
+  .catch(error => {
+    if(error) {
+      console.log(error)
+      res.status(500).end()
+    }
+  })
 });
 
 // delete an item (at this point only from local memory)
@@ -110,29 +112,28 @@ app.delete("/api/persons/:id", (req, res) => {
 // POST an item and assign it a random id
 
 app.post("/api/persons/", (req, res) => {
-  // create random id for new entry
-  const randomID = Math.floor(Math.random() * 999999999999);
+  const body = req.body
+  
 
   // if request body doesnt not include name or number, send back 400
   // if name is already used in database send back 400
-
-  if (!req.body.name || !req.body.number) {
+  
+  if (!body.name || !body.number) {
     return res.status(400).json({ error: "content missing" });
-  } else if (
-    people.filter((person) => person.name === req.body.name).length > 0
-  ) {
-    return res.status(400).json({ error: "name already in use" });
-  }
+  } 
+    
 
-  const newEntry = {
-    id: randomID,
+  const entry = new Entry({
     name: req.body.name,
     number: req.body.number,
-  };
+    important: body.important || false,
+    date: new Date(),
+  })
+    
+  entry.save().then(savedEntry => res.json(savedEntry))  
+  
 
-  people = people.concat(newEntry);
-
-  res.json(newEntry);
+  
 });
 
 /// PUT replace object in persons with updated
@@ -158,19 +159,7 @@ app.use(unknownEndpoint);
 
 const PORT = process.env.PORT || 3001;
 
-const mongoose = require("mongoose");
 
-const url = process.env.MONGO_URI;
-console.log(url);
-mongoose.connect(url);
-
-const noteSchema = new mongoose.Schema({
-  content: String,
-  date: Date,
-  important: Boolean,
-});
-
-const Note = mongoose.model("Note", noteSchema);
 
 app.listen(PORT, () => {
   console.log(`server listening on port ${PORT}`);
