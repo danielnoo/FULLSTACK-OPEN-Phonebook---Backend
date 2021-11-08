@@ -8,6 +8,7 @@ const Entry = require("./models/entries");
 
 
 
+
 morgan.token("body", function (req, res) {
   return JSON.stringify(req.body);
 });
@@ -83,7 +84,7 @@ app.get("/info", (req, res) => {
 
 // GET specific entry
 
-app.get("/api/persons/:id", (req, res) => {
+app.get("/api/persons/:id", (req, res, next) => {
   Entry.findById(req.params.id)
   .then(entry => {
     if(entry){
@@ -92,21 +93,17 @@ app.get("/api/persons/:id", (req, res) => {
       res.status(404).end()
     }
   })
-  .catch(error => {
-    if(error) {
-      console.log(error)
-      res.status(500).end()
-    }
-  })
+  .catch(error => next(error))
 });
 
 // delete an item (at this point only from local memory)
 
 app.delete("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-  people = people.filter((person) => person.id !== id);
+  Entry.findByIdAndRemove(req.params.id)
+  .then(result => res.status(204).end())
+  .catch(error => next(error))
 
-  res.status(204).end();
+  
 });
 
 // POST an item and assign it a random id
@@ -116,10 +113,10 @@ app.post("/api/persons/", (req, res) => {
   
 
   // if request body doesnt not include name or number, send back 400
-  // if name is already used in database send back 400
+ 
   
   if (!body.name || !body.number) {
-    return res.status(400).json({ error: "content missing" });
+    return res.status(400).json({ error: "content missing or not valid JSON" });
   } 
     
 
@@ -139,12 +136,19 @@ app.post("/api/persons/", (req, res) => {
 /// PUT replace object in persons with updated
 
 app.put("/api/persons/:id", (req, res) => {
-  const newEntry = req.body;
-  people = people.map((person) =>
-    person.id !== newEntry.id ? person : newEntry
-  );
+  const body = req.body;
+  
+  const newEntry = {
+    "name": body.name,
+    "number": body.number,
+    "important": body.important
+  }
 
-  res.json(newEntry);
+  Entry.findByIdAndUpdate(req.params.id, newEntry, { new: true })
+  .then(updatedEntry => res.json(updatedEntry))
+  .catch(error => next(error))
+
+  
 });
 
 /// handling for unknown endpoint
@@ -154,6 +158,20 @@ const unknownEndpoint = (req, res) => {
 };
 
 app.use(unknownEndpoint);
+
+/// error handling middleware
+
+const errorHandler = (error, req, res, next) => {
+  console.error(error.message);
+
+  if (error.name === "CastError") {
+    return res.status(400).send({ error: "malformatted id" });
+  }
+
+  next(error);
+};
+
+app.use(errorHandler);
 
 // listen on PORT
 
