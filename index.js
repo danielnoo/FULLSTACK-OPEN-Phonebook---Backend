@@ -73,15 +73,20 @@ app.get("/api/persons", (req, res) => {
 
 // GET phonebook info
 
-app.get("/info", async (req, res) => {
-  
+app.get("/info", async (req, res, next) => {
+  try {
   const numEntries = await Entry.estimatedDocumentCount()
   const currentTime = new Date();
-  const response = `<p>Phonebook has info for ${numEntries} people 
+  const response = `<p>Phonebook has info for ${umEntries} people 
   
   </br>
   </br> ${currentTime}</p>`;
   res.send(response);
+
+  } catch(error) {
+    next(error)
+  }
+  
 });
 
 // GET specific entry
