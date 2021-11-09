@@ -1,13 +1,11 @@
+
 require("dotenv").config();
+
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const app = express();
 const Entry = require("./models/entries");
-
-
-
-
 
 morgan.token("body", function (req, res) {
   return JSON.stringify(req.body);
@@ -30,8 +28,6 @@ app.use(
     ].join(" ");
   })
 );
-
-
 
 let people = [
   {
@@ -68,94 +64,86 @@ app.get("/", (req, res) => {
 // GET base API route
 
 app.get("/api/persons", (req, res) => {
-  Entry.find({}).then(entries => res.json(entries));
+  Entry.find({}).then((entries) => res.json(entries));
 });
 
 // GET phonebook info
 
 app.get("/info", async (req, res, next) => {
   try {
-  const numEntries = await Entry.estimatedDocumentCount()
-  const currentTime = new Date();
-  const response = `<p>Phonebook has info for ${numEntries} people 
+    const numEntries = await Entry.estimatedDocumentCount();
+    const currentTime = new Date();
+    const response = `<p>Phonebook has info for ${numEntries} people 
   
   </br>
   </br> ${currentTime}</p>`;
-  res.send(response);
-
-  } catch(error) {
-    next(error)
+    res.send(response);
+  } catch (error) {
+    next(error);
   }
-  
 });
 
 // GET specific entry
 
 app.get("/api/persons/:id", (req, res, next) => {
   Entry.findById(req.params.id)
-  .then(entry => {
-    if(entry){
-      res.json(entry)
-    } else {
-      res.status(404).end()
-    }
-  })
-  .catch(error => next(error))
+    .then((entry) => {
+      if (entry) {
+        res.json(entry);
+      } else {
+        res.status(404).end();
+      }
+    })
+    .catch((error) => next(error));
 });
 
 // delete an item (at this point only from local memory)
 
 app.delete("/api/persons/:id", (req, res) => {
   Entry.findByIdAndRemove(req.params.id)
-  .then(result => res.status(204).end())
-  .catch(error => next(error))
-
-  
+    .then((result) => res.status(204).end())
+    .catch((error) => next(error));
 });
 
 // POST an item and assign it a random id
 
-app.post("/api/persons/", (req, res) => {
-  const body = req.body
-  
+app.post("/api/persons/", (req, res, next) => {
+  const body = req.body;
 
   // if request body doesnt not include name or number, send back 400
- 
-  
+
   if (!body.name || !body.number) {
     return res.status(400).json({ error: "content missing or not valid JSON" });
-  } 
-    
+  }
 
   const entry = new Entry({
     name: req.body.name,
     number: req.body.number,
     important: body.important || false,
     date: new Date(),
-  })
-    
-  entry.save().then(savedEntry => res.json(savedEntry))  
-  
+  });
 
-  
+  entry
+    .save()
+    .then((savedEntry) => savedEntry.toJSON())
+    .then((formattedEntry) => res.json(formattedEntry))
+    .catch((error) => next(error));
 });
 
 /// PUT replace object in persons with updated
 
 app.put("/api/persons/:id", (req, res) => {
   const body = req.body;
-  
+
   const newEntry = {
-    "name": body.name,
-    "number": body.number,
-    "important": body.important
-  }
+    name: body.name,
+    number: body.number,
+    important: body.important,
+  };
 
   Entry.findByIdAndUpdate(req.params.id, newEntry, { new: true })
-  .then(updatedEntry => res.json(updatedEntry))
-  .catch(error => next(error))
-
-  
+    .then((updatedEntry) => res.json(updatedEntry))
+    .catch((error) => next(error));
 });
 
 /// handling for unknown endpoint
@@ -173,6 +161,8 @@ const errorHandler = (error, req, res, next) => {
 
   if (error.name === "CastError") {
     return res.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return res.status(400).json({ error: error.message });
   }
 
   next(error);
@@ -183,8 +173,6 @@ app.use(errorHandler);
 // listen on PORT
 
 const PORT = process.env.PORT || 3001;
-
-
 
 app.listen(PORT, () => {
   console.log(`server listening on port ${PORT}`);
