@@ -87,3 +87,13 @@ describe('total likes', () => {
     expect(result).toBe(0)
   })
 })
+
+describe('most likes', () => {
+
+  test('when passed a list of five blogs', () => {
+    const result = listHelper.favouriteBlog(blogs)
+    expect(result).toBe(12)
+
+  
+  })
+})
