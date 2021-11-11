@@ -37,7 +37,7 @@ const mostBlogs = (blogs) => {
     .value()
     
    
-  console.log(mostCommon)
+  
 
   return {
     author: mostCommon[0],
@@ -53,7 +53,50 @@ const mostLikes = (blogs) => {
 
   // get only unique authors from array
   const uniqueAuthors = [...new Set(arrayOfAuthors)]
-  console.log(uniqueAuthors)
+  
+
+  const likeTotals = {}
+
+  for(const author of uniqueAuthors) {
+    likeTotals[author] = 0
+    blogs.forEach(blog => {
+      if(blog.author === author){
+        
+        likeTotals[author] += blog.likes
+      }
+    })
+  }
+
+  
+
+  // get the highest number of likes
+  let mostLikes = 0
+  let mostLikesObj = {}
+
+  for(const author in likeTotals) {
+    
+    if(likeTotals[author] > mostLikes){
+      mostLikes = likeTotals[author]
+      mostLikesObj = {}
+      mostLikesObj[author] = likeTotals[author]
+      
+    }
+  }
+
+  const mostLikesArray = Object.entries(mostLikesObj)
+
+
+
+  console.log({
+    author: mostLikesArray[0][0],
+    likes: mostLikesArray[0][1]
+  })
+
+  return {
+    author: mostLikesArray[0][0],
+    likes: mostLikesArray[0][1]
+  }
+
 
 }
 

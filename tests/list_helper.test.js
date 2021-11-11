@@ -270,7 +270,7 @@ describe('most likes', () => {
     },
   ]
 
-  test('when given array of 5 blogs', (blogs) => {
+  test('when given array of 5 blogs', () => {
     const result = listHelper.mostLikes(blogs)
     expect(result).toEqual({
       author: 'Edsger W. Dijkstra',
