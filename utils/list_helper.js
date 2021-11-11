@@ -44,11 +44,17 @@ const mostBlogs = (blogs) => {
     blogs: mostCommon[1],
   }
 
-  // function that finds number of occurences of mostCommon
-
-
   
-  // 
+}
+
+const mostLikes = (blogs) => {
+  // get all author names
+  const arrayOfAuthors = blogs.map((blog) => blog.author)
+
+  // get only unique authors from array
+  const uniqueAuthors = [...new Set(arrayOfAuthors)]
+  console.log(uniqueAuthors)
+
 }
 
 module.exports = {
@@ -56,4 +62,5 @@ module.exports = {
   totalLikes,
   favouriteBlog,
   mostBlogs,
+  mostLikes
 }
