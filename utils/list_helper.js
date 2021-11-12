@@ -1,7 +1,7 @@
 var _ = require('lodash')
 
 const dummy = (blogs) => {
-  console.log(blogs)
+  
   return 1
 }
 
@@ -87,10 +87,7 @@ const mostLikes = (blogs) => {
 
 
 
-  console.log({
-    author: mostLikesArray[0][0],
-    likes: mostLikesArray[0][1]
-  })
+  
 
   return {
     author: mostLikesArray[0][0],
