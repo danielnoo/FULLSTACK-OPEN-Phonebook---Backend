@@ -9,8 +9,10 @@ const Entry = require('../models/entries')
 
 // GET base API route
 
-entryRouter.get('/', (req, res) => {
-  Entry.find({}).then((entries) => res.json(entries))
+entryRouter.get('/', async (req, res) => {
+  const entries = await Entry.find({}) 
+
+  res.json(entries)
 })
 
 // GET phonebook info
