@@ -48,6 +48,28 @@ test('the first entry name is testface', async () => {
   
 })
 
+test('a valid entry can be added', async () => {
+  const newEntry = {
+    name: 'bobbbbbb',
+    number: '342534523452',
+    important: true,
+  }
+
+  await api
+    .post('/api/persons')
+    .send(newEntry)
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/persons')
+
+  const contents = response.body.map((r) => r.name)
+
+  expect(response.body).toHaveLength(initialEntries.length + 1)
+  expect(contents).toContain('bobbbbbb')
+})
+
+
 afterAll(() => {
   mongoose.connection.close()
 })
